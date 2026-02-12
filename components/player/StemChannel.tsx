@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Stem = {
   name: string;
@@ -16,7 +16,11 @@ type StemChannelProps = {
   isPlaying: boolean;
   buffer: AudioBuffer | null;
   currentTime: number;
+  duration: number;
+  sectionCount: number;
+  sectionModeEnabled: boolean;
   onVolumeChange: (value: number) => void;
+  onSeek: (time: number) => void;
   onToggleMute: () => void;
   onToggleSolo: () => void;
 };
@@ -41,14 +45,64 @@ export default function StemChannel({
   isPlaying,
   buffer,
   currentTime,
+  duration,
+  sectionCount,
+  sectionModeEnabled,
   onVolumeChange,
+  onSeek,
   onToggleMute,
   onToggleSolo,
 }: StemChannelProps) {
   const color = stem.color || fallbackColors[index % fallbackColors.length];
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [hoverProgress, setHoverProgress] = useState<number | null>(null);
+  const [dragProgress, setDragProgress] = useState<number | null>(null);
+  const activePointerIdRef = useRef<number | null>(null);
   const waveformProgress =
-    buffer && buffer.duration > 0 ? Math.min(Math.max(currentTime / buffer.duration, 0), 1) : 0;
+    Number.isFinite(duration) && duration > 0 ? Math.min(Math.max(currentTime / duration, 0), 1) : 0;
+
+  const clamp01 = useCallback((value: number) => Math.min(Math.max(value, 0), 1), []);
+
+  const snapProgress = useCallback(
+    (progress: number) => {
+      if (!sectionModeEnabled || sectionCount <= 0) return progress;
+      const indexFromProgress = Math.min(
+        sectionCount - 1,
+        Math.floor(clamp01(progress) * sectionCount),
+      );
+      return indexFromProgress / sectionCount;
+    },
+    [clamp01, sectionCount, sectionModeEnabled],
+  );
+
+  const seekFromClientX = useCallback(
+    (clientX: number, element: HTMLDivElement) => {
+      if (!Number.isFinite(duration) || duration <= 0) return;
+
+      const rect = element.getBoundingClientRect();
+      if (rect.width <= 0) return;
+
+      const rawProgress = clamp01((clientX - rect.left) / rect.width);
+      const targetProgress = snapProgress(rawProgress);
+      setDragProgress(targetProgress);
+      onSeek(targetProgress * duration);
+    },
+    [clamp01, duration, onSeek, snapProgress],
+  );
+
+  const sectionStep = sectionCount > 0 ? 1 / sectionCount : 1;
+  const currentSectionIndex =
+    sectionModeEnabled && sectionCount > 0
+      ? Math.min(sectionCount - 1, Math.floor(clamp01(waveformProgress) * sectionCount))
+      : -1;
+  const hoverSectionIndex =
+    sectionModeEnabled && sectionCount > 0 && hoverProgress !== null
+      ? Math.min(sectionCount - 1, Math.floor(clamp01(hoverProgress) * sectionCount))
+      : -1;
+  const pressedSectionIndex =
+    sectionModeEnabled && sectionCount > 0 && dragProgress !== null
+      ? Math.min(sectionCount - 1, Math.floor(clamp01(dragProgress) * sectionCount))
+      : -1;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -115,6 +169,15 @@ export default function StemChannel({
     };
   }, [buffer, color]);
 
+  const getRawProgressFromClientX = useCallback(
+    (clientX: number, element: HTMLDivElement) => {
+      const rect = element.getBoundingClientRect();
+      if (rect.width <= 0) return null;
+      return clamp01((clientX - rect.left) / rect.width);
+    },
+    [clamp01],
+  );
+
   return (
     <div
       className="space-y-3 rounded-2xl border p-4 transition"
@@ -142,6 +205,37 @@ export default function StemChannel({
           ref={canvasRef}
           className={`h-full w-full ${isMuted ? "opacity-40" : "opacity-90"}`}
         />
+
+        {sectionModeEnabled && sectionCount > 0 ? (
+          <div className="pointer-events-none absolute inset-0">
+            {Array.from({ length: sectionCount }).map((_, sectionIndex) => {
+              const isCurrentSection = sectionIndex === currentSectionIndex;
+              const isHoveredSection =
+                sectionIndex === hoverSectionIndex || sectionIndex === pressedSectionIndex;
+
+              return (
+                <div
+                  key={sectionIndex}
+                  className="absolute inset-y-0"
+                  style={{
+                    left: `${sectionIndex * sectionStep * 100}%`,
+                    width: `${sectionStep * 100}%`,
+                    background: isHoveredSection
+                      ? `${color}33`
+                      : isCurrentSection
+                        ? `${color}1a`
+                        : "transparent",
+                    borderRight:
+                      sectionIndex < sectionCount - 1
+                        ? "1px solid rgba(255,255,255,0.12)"
+                        : "none",
+                  }}
+                />
+              );
+            })}
+          </div>
+        ) : null}
+
         <div
           className="pointer-events-none absolute inset-y-0 left-0"
           style={{
@@ -152,6 +246,63 @@ export default function StemChannel({
         <div
           className="pointer-events-none absolute inset-y-0 w-px bg-white/80"
           style={{ left: `${waveformProgress * 100}%` }}
+        />
+        {hoverProgress !== null ? (
+          <div
+            className="pointer-events-none absolute inset-y-0 w-px bg-cyan-300/90"
+            style={{ left: `${hoverProgress * 100}%` }}
+          />
+        ) : null}
+
+        <div
+          className="absolute inset-0 z-20 cursor-pointer touch-none"
+          style={{ touchAction: "none" }}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            activePointerIdRef.current = event.pointerId;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            const rawProgress = getRawProgressFromClientX(event.clientX, event.currentTarget);
+            if (rawProgress !== null) {
+              setHoverProgress(rawProgress);
+            }
+            seekFromClientX(event.clientX, event.currentTarget);
+          }}
+          onPointerMove={(event) => {
+            const rawProgress = getRawProgressFromClientX(event.clientX, event.currentTarget);
+            if (rawProgress !== null) {
+              setHoverProgress(rawProgress);
+            }
+
+            if (activePointerIdRef.current === event.pointerId) {
+              event.preventDefault();
+              seekFromClientX(event.clientX, event.currentTarget);
+            }
+          }}
+          onPointerUp={(event) => {
+            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+              event.currentTarget.releasePointerCapture(event.pointerId);
+            }
+            if (activePointerIdRef.current === event.pointerId) {
+              activePointerIdRef.current = null;
+            }
+            setDragProgress(null);
+          }}
+          onPointerCancel={(event) => {
+            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+              event.currentTarget.releasePointerCapture(event.pointerId);
+            }
+            if (activePointerIdRef.current === event.pointerId) {
+              activePointerIdRef.current = null;
+            }
+            setDragProgress(null);
+          }}
+          onPointerLeave={() => {
+            setHoverProgress(null);
+          }}
+          onLostPointerCapture={() => {
+            activePointerIdRef.current = null;
+            setDragProgress(null);
+          }}
         />
       </div>
 
