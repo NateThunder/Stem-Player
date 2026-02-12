@@ -21,12 +21,14 @@ type StemPlayerProps = {
 };
 
 export default function StemPlayer({ track }: StemPlayerProps) {
+  const sectionCount = 8;
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingError, setLoadingError] = useState<string | null>(null);
+  const [isSectionModeEnabled, setIsSectionModeEnabled] = useState(false);
   const [volumes, setVolumes] = useState<Record<number, number>>({});
   const [mutedStems, setMutedStems] = useState<Record<number, boolean>>({});
   const [soloedStems, setSoloedStems] = useState<Record<number, boolean>>({});
@@ -227,13 +229,15 @@ export default function StemPlayer({ track }: StemPlayerProps) {
 
   const handleSeek = useCallback(
     (time: number) => {
-      offsetRef.current = time;
-      setCurrentTime(time);
+      const safeDuration = Number.isFinite(duration) && duration > 0 ? duration : 0;
+      const clampedTime = Math.min(Math.max(time, 0), safeDuration);
+      offsetRef.current = clampedTime;
+      setCurrentTime(clampedTime);
       if (isPlaying) {
-        startPlayback(time);
+        startPlayback(clampedTime);
       }
     },
-    [isPlaying, startPlayback],
+    [duration, isPlaying, startPlayback],
   );
 
   const handleRestart = useCallback(() => {
@@ -269,6 +273,20 @@ export default function StemPlayer({ track }: StemPlayerProps) {
       <header>
         <h2 className="text-2xl font-semibold text-white">{track.title}</h2>
         {track.artistName ? <p className="text-sm text-white/60">{track.artistName}</p> : null}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsSectionModeEnabled((previous) => !previous)}
+            className={`rounded-lg border px-3 py-1.5 text-xs transition ${
+              isSectionModeEnabled
+                ? "border-cyan-300/50 bg-cyan-500/20 text-cyan-100"
+                : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
+            }`}
+          >
+            Section Seek {isSectionModeEnabled ? "On" : "Off"}
+          </button>
+          <span className="text-xs text-white/50">{sectionCount} sections</span>
+        </div>
       </header>
 
       {!isLoaded ? (
@@ -298,9 +316,13 @@ export default function StemPlayer({ track }: StemPlayerProps) {
                 isPlaying={isPlaying}
                 buffer={buffersRef.current[index] ?? null}
                 currentTime={currentTime}
+                duration={duration}
+                sectionCount={sectionCount}
+                sectionModeEnabled={isSectionModeEnabled}
                 onVolumeChange={(value) => handleVolumeChange(index, value)}
                 onToggleMute={() => handleToggleMute(index)}
                 onToggleSolo={() => handleToggleSolo(index)}
+                onSeek={handleSeek}
               />
             ))}
           </div>
