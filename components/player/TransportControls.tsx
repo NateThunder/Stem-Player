@@ -46,16 +46,30 @@ export default function TransportControls({
         <button
           type="button"
           onClick={onRestart}
-          className="rounded-xl border border-white/15 px-4 py-2 text-sm text-white/80 transition hover:bg-white/10"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white/80 transition hover:bg-white/10"
+          title="Restart"
         >
-          Restart
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+            <rect x="5" y="5" width="2" height="14" rx="1" />
+            <path d="M18 6v12L8.5 12z" />
+          </svg>
         </button>
         <button
           type="button"
           onClick={onPlayPause}
-          className="rounded-xl bg-sky-500 px-6 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-sky-400"
+          className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-sky-500 text-slate-900 transition hover:bg-sky-400"
+          title={isPlaying ? "Pause" : "Play"}
         >
-          {isPlaying ? "Pause" : "Play"}
+          {isPlaying ? (
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
+              <rect x="6" y="5" width="4" height="14" rx="1" />
+              <rect x="14" y="5" width="4" height="14" rx="1" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          )}
         </button>
       </div>
     </div>

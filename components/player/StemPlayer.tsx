@@ -304,6 +304,15 @@ export default function StemPlayer({ track }: StemPlayerProps) {
 
       {isLoaded ? (
         <>
+          <TransportControls
+            isPlaying={isPlaying}
+            currentTime={currentTime}
+            duration={duration}
+            onPlayPause={handlePlayPause}
+            onRestart={handleRestart}
+            onSeek={handleSeek}
+          />
+
           <div className="space-y-3">
             {stems.map((stem, index) => (
               <StemChannel
@@ -326,15 +335,6 @@ export default function StemPlayer({ track }: StemPlayerProps) {
               />
             ))}
           </div>
-
-          <TransportControls
-            isPlaying={isPlaying}
-            currentTime={currentTime}
-            duration={duration}
-            onPlayPause={handlePlayPause}
-            onRestart={handleRestart}
-            onSeek={handleSeek}
-          />
         </>
       ) : null}
     </section>
