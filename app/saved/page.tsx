@@ -13,10 +13,32 @@ const formatDate = (value: string) => {
 export default function SavedSessionsPage() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [sessions, setSessions] = useState<SavedSession[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setSessions(listSavedSessions());
-    setIsHydrated(true);
+    let active = true;
+
+    const loadSessions = async () => {
+      try {
+        const next = await listSavedSessions();
+        if (!active) return;
+        setSessions(next);
+        setError(null);
+      } catch (loadError) {
+        if (!active) return;
+        const message =
+          loadError instanceof Error ? loadError.message : "Failed to load saved sessions.";
+        setError(message);
+      } finally {
+        if (active) setIsHydrated(true);
+      }
+    };
+
+    void loadSessions();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const hasSessions = useMemo(() => sessions.length > 0, [sessions.length]);
@@ -69,7 +91,19 @@ export default function SavedSessionsPage() {
                     </Link>
                     <button
                       type="button"
-                      onClick={() => setSessions(deleteSavedSession(session.id))}
+                      onClick={async () => {
+                        try {
+                          const next = await deleteSavedSession(session.id, session.source);
+                          setSessions(next);
+                          setError(null);
+                        } catch (deleteError) {
+                          const message =
+                            deleteError instanceof Error
+                              ? deleteError.message
+                              : "Failed to delete saved session.";
+                          setError(message);
+                        }
+                      }}
                       className="rounded-lg border border-white/15 px-3 py-1.5 text-xs text-white/70 transition hover:bg-white/10"
                     >
                       Delete
@@ -80,6 +114,8 @@ export default function SavedSessionsPage() {
             ))}
           </div>
         )}
+
+        {error ? <p className="mt-4 text-sm text-rose-300">{error}</p> : null}
       </div>
     </div>
   );

@@ -56,34 +56,45 @@ function NewStemPageContent() {
     const sessionId = searchParams.get("sessionId");
     if (!sessionId) return;
 
-    const saved = getSavedSessionById(sessionId);
-    if (!saved) {
-      setError("Saved session was not found.");
-      return;
-    }
+    let active = true;
 
-    setTitle(saved.title);
-    setArtistName(saved.artistName || "");
+    const loadSavedSession = async () => {
+      const saved = await getSavedSessionById(sessionId);
+      if (!active) return;
+      if (!saved) {
+        setError("Saved session was not found.");
+        return;
+      }
 
-    const restoredStems: StemDraft[] = saved.stems.map((stem) => ({
-      name: stem.name,
-      fileUrl: stem.fileUrl,
-      color: stem.color || "#4ECDC4",
-      sourceType: "url",
-      sourceName: undefined,
-    }));
+      setTitle(saved.title);
+      setArtistName(saved.artistName || "");
 
-    setStems(restoredStems.length ? restoredStems : defaultStems);
-    setLoadedTrack({
-      title: saved.title,
-      artistName: saved.artistName,
-      stems: saved.stems.map((stem) => ({
+      const restoredStems: StemDraft[] = saved.stems.map((stem) => ({
         name: stem.name,
         fileUrl: stem.fileUrl,
-        color: stem.color,
-      })),
-    });
-    setError(null);
+        color: stem.color || "#4ECDC4",
+        sourceType: "url",
+        sourceName: undefined,
+      }));
+
+      setStems(restoredStems.length ? restoredStems : defaultStems);
+      setLoadedTrack({
+        title: saved.title,
+        artistName: saved.artistName,
+        stems: saved.stems.map((stem) => ({
+          name: stem.name,
+          fileUrl: stem.fileUrl,
+          color: stem.color,
+        })),
+      });
+      setError(null);
+    };
+
+    void loadSavedSession();
+
+    return () => {
+      active = false;
+    };
   }, [searchParams]);
 
   const updateStem = (index: number, next: Partial<StemDraft>) => {
