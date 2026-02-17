@@ -292,7 +292,7 @@ export default function StemPlayer({ track }: StemPlayerProps) {
                 step={0.01}
                 value={masterVolume}
                 onChange={(e) => setMasterVolume(Number(e.target.value))}
-                className="h-1.5 w-full cursor-pointer accent-sky-400"
+                className="h-1.5 w-full cursor-pointer accent-[#55D6C2]"
               />
             </div>
             <span className="w-8 text-right text-xs font-bold text-white/60">
@@ -308,7 +308,7 @@ export default function StemPlayer({ track }: StemPlayerProps) {
               onClick={() => setIsSectionModeEnabled((previous) => !previous)}
               className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
                 isSectionModeEnabled
-                  ? "bg-sky-500 text-slate-900"
+                  ? "bg-[#55D6C2] text-[#0B2A4A]"
                   : "bg-white/5 text-white/60 hover:bg-white/10"
               }`}
             >

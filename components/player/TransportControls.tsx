@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+
 type TransportControlsProps = {
   isPlaying: boolean;
   currentTime: number;
@@ -9,12 +11,11 @@ type TransportControlsProps = {
   onSeek: (time: number) => void;
 };
 
-function formatTime(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
-  const minutes = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${minutes}:${secs.toString().padStart(2, "0")}`;
-}
+const formatTime = (time: number) => {
+  const mins = Math.floor(time / 60);
+  const secs = Math.floor(time % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
 
 export default function TransportControls({
   isPlaying,
@@ -24,56 +25,64 @@ export default function TransportControls({
   onRestart,
   onSeek,
 }: TransportControlsProps) {
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-6 z-50">
-    <div className="space-y-4 rounded-3xl border border-white/15 bg-slate-900/80 p-5 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-      <div className="space-y-2">
-        <input
-          type="range"
-          min={0}
-          max={Math.max(duration, 0)}
-          step={0.01}
-          value={Math.min(currentTime, Math.max(duration, 0))}
-          onChange={(event) => onSeek(Number(event.target.value))}
-          className="h-2 w-full cursor-pointer accent-sky-400"
-        />
-        <div className="flex justify-between text-xs text-white/60">
-          <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0B2A4A]/80 backdrop-blur-2xl border-t border-white/5 p-6">
+      <div className="mx-auto max-w-6xl flex flex-col items-center gap-4">
+        {/* Progress Bar */}
+        <div className="w-full flex items-center gap-4">
+          <span className="text-[10px] font-black tabular-nums text-white/40">{formatTime(currentTime)}</span>
+          <div
+            className="relative flex-1 h-1 bg-white/5 rounded-full cursor-pointer group"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const p = (e.clientX - rect.left) / rect.width;
+              onSeek(p * duration);
+            }}
+          >
+            <div
+              className="absolute inset-y-0 left-0 bg-[#55D6C2] rounded-full"
+              style={{ width: `${progress}%` }}
+            />
+            <div
+              className="absolute h-3 w-3 bg-white rounded-full -translate-x-1/2 -translate-y-1/3 opacity-0 group-hover:opacity-100 transition-opacity"
+              style={{ left: `${progress}%` }}
+            />
+          </div>
+          <span className="text-[10px] font-black tabular-nums text-white/40">{formatTime(duration)}</span>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex items-center gap-12">
+          <button
+            onClick={onRestart}
+            className="text-white/20 hover:text-white transition active:scale-90"
+            title="Restart"
+          >
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
+              <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+            </svg>
+          </button>
+
+          <button
+            onClick={onPlayPause}
+            className="h-14 w-14 rounded-full bg-[#55D6C2] text-[#0B2A4A] flex items-center justify-center shadow-lg shadow-[#55D6C2]/20 transition hover:scale-110 active:scale-95"
+          >
+            {isPlaying ? (
+              <svg viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" className="h-8 w-8 translate-x-0.5" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            )}
+          </button>
+
+          <div className="w-6" /> {/* Spacer for symmetry */}
         </div>
       </div>
-
-      <div className="flex items-center justify-center gap-3">
-        <button
-          type="button"
-          onClick={onRestart}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white/80 transition hover:bg-white/10"
-          title="Restart"
-        >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
-            <rect x="5" y="5" width="2" height="14" rx="1" />
-            <path d="M18 6v12L8.5 12z" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={onPlayPause}
-          className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-sky-500 text-slate-900 transition hover:bg-sky-400"
-          title={isPlaying ? "Pause" : "Play"}
-        >
-          {isPlaying ? (
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
-              <rect x="6" y="5" width="4" height="14" rx="1" />
-              <rect x="14" y="5" width="4" height="14" rx="1" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5" fill="currentColor" aria-hidden="true">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          )}
-        </button>
-      </div>
-    </div>
     </div>
   );
 }

@@ -1,0 +1,373 @@
+.container {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: #111827;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  background-color: #0B2A4A;
+  color: #ffffff;
+  padding: 6rem 1.5rem 8rem;
+  overflow: hidden;
+}
+
+.heroBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.blob1 {
+  position: absolute;
+  top: -10%;
+  right: -5%;
+  width: 40rem;
+  height: 40rem;
+  background: radial-gradient(circle, rgba(85, 214, 194, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.blob2 {
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 30rem;
+  height: 30rem;
+  background: radial-gradient(circle, rgba(85, 214, 194, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.heroContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.heroText {
+  text-align: center;
+  max-width: 600px;
+}
+
+.headline {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+.headline span {
+  color: #55D6C2;
+}
+
+.subhead {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-bottom: 3rem;
+}
+
+.primaryBtnLarge {
+  background-color: #55D6C2;
+  color: #0B2A4A;
+  padding: 1rem 2rem;
+  border-radius: 16px;
+  font-weight: 800;
+  text-decoration: none;
+  font-size: 1.1rem;
+  box-shadow: 0 10px 20px rgba(85, 214, 194, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.primaryBtnLarge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(85, 214, 194, 0.3);
+}
+
+.secondaryBtnLarge {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 1rem 2rem;
+  border-radius: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background-color 0.2s;
+}
+
+.secondaryBtnLarge:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.socialProofSmall {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+}
+
+.heroImage {
+  width: 100%;
+  max-width: 500px;
+}
+
+.illustrationPlaceholder {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 32px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.vectorIcon {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2));
+}
+
+/* Social Proof Section */
+.socialProof {
+  background-color: #F5F7FB;
+  padding: 4rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.sectionContent {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.trustedText {
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #9ca3af;
+  margin-bottom: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+}
+
+.logoGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3rem;
+  align-items: center;
+  opacity: 0.6;
+}
+
+.logoPlaceholder {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0B2A4A;
+}
+
+/* Features Section */
+.features {
+  padding: 10rem 1.5rem;
+}
+
+.sectionTitle {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 5rem;
+  color: #0B2A4A;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-cols: 1fr;
+  gap: 2.5rem;
+}
+
+.featureCard {
+  background-color: #F5F7FB;
+  padding: 3rem;
+  border-radius: 24px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.featureCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border-color: rgba(85, 214, 194, 0.2);
+}
+
+.featureIcon {
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: #55D6C2;
+  color: #0B2A4A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+
+.featureIcon svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.featureCard h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: #0B2A4A;
+}
+
+.featureCard p {
+  color: #4b5563;
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+/* CTA Banner */
+.ctaBanner {
+  padding: 6rem 1.5rem;
+  background-color: #55D6C2;
+  text-align: center;
+}
+
+.ctaContent {
+  max-width: 800px;
+  margin: 0 auto;
+  color: #0B2A4A;
+}
+
+.ctaContent h2 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+}
+
+.ctaContent p {
+  font-size: 1.25rem;
+  margin-bottom: 2.5rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* Footer */
+.footer {
+  background-color: #F5F7FB;
+  padding: 6rem 1.5rem 4rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.footerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.footerBrand {
+  max-width: 300px;
+}
+
+.footerBrand p {
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.footerLinks {
+  display: grid;
+  grid-template-cols: repeat(2, 1fr);
+  gap: 3rem;
+}
+
+.linkGroup h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  color: #0B2A4A;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+}
+
+.linkGroup a {
+  display: block;
+  text-decoration: none;
+  color: #4b5563;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.linkGroup a:hover {
+  color: #55D6C2;
+}
+
+/* Desktop Responsiveness */
+@media (min-width: 1024px) {
+  .navContent {
+    padding: 1.5rem;
+  }
+
+  .hero {
+    padding: 10rem 1.5rem 12rem;
+  }
+
+  .heroContent {
+    flex-direction: row;
+    text-align: left;
+    justify-content: space-between;
+  }
+
+  .heroText {
+    text-align: left;
+    max-width: 600px;
+  }
+
+  .headline {
+    font-size: 4.5rem;
+  }
+
+  .heroActions {
+    justify-content: flex-start;
+  }
+
+  .heroImage {
+    max-width: 550px;
+  }
+
+  .featureGrid {
+    grid-template-cols: repeat(3, 1fr);
+  }
+
+  .footerContent {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .footerLinks {
+    grid-template-cols: repeat(3, 1fr);
+  }
+}

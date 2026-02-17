@@ -58,6 +58,7 @@ export default function StemChannel({
   const [hoverProgress, setHoverProgress] = useState<number | null>(null);
   const [dragProgress, setDragProgress] = useState<number | null>(null);
   const activePointerIdRef = useRef<number | null>(null);
+
   const waveformProgress =
     Number.isFinite(duration) && duration > 0 ? Math.min(Math.max(currentTime / duration, 0), 1) : 0;
 
@@ -78,10 +79,8 @@ export default function StemChannel({
   const seekFromClientX = useCallback(
     (clientX: number, element: HTMLDivElement) => {
       if (!Number.isFinite(duration) || duration <= 0) return;
-
       const rect = element.getBoundingClientRect();
       if (rect.width <= 0) return;
-
       const rawProgress = clamp01((clientX - rect.left) / rect.width);
       const targetProgress = snapProgress(rawProgress);
       setDragProgress(targetProgress);
@@ -90,24 +89,9 @@ export default function StemChannel({
     [clamp01, duration, onSeek, snapProgress],
   );
 
-  const sectionStep = sectionCount > 0 ? 1 / sectionCount : 1;
-  const currentSectionIndex =
-    sectionModeEnabled && sectionCount > 0
-      ? Math.min(sectionCount - 1, Math.floor(clamp01(waveformProgress) * sectionCount))
-      : -1;
-  const hoverSectionIndex =
-    sectionModeEnabled && sectionCount > 0 && hoverProgress !== null
-      ? Math.min(sectionCount - 1, Math.floor(clamp01(hoverProgress) * sectionCount))
-      : -1;
-  const pressedSectionIndex =
-    sectionModeEnabled && sectionCount > 0 && dragProgress !== null
-      ? Math.min(sectionCount - 1, Math.floor(clamp01(dragProgress) * sectionCount))
-      : -1;
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const context = canvas.getContext("2d");
     if (!context) return;
 
@@ -122,14 +106,6 @@ export default function StemChannel({
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       context.clearRect(0, 0, width, height);
-      context.fillStyle = "rgba(2, 6, 23, 0.35)";
-      context.fillRect(0, 0, width, height);
-
-      context.strokeStyle = "rgba(255, 255, 255, 0.14)";
-      context.beginPath();
-      context.moveTo(0, height / 2);
-      context.lineTo(width, height / 2);
-      context.stroke();
 
       if (!buffer) return;
 
@@ -146,200 +122,80 @@ export default function StemChannel({
         const end = Math.min(start + step, channel.length);
         let min = 1;
         let max = -1;
-
         for (let i = start; i < end; i += 1) {
-          const value = channel[i];
-          if (value < min) min = value;
-          if (value > max) max = value;
+          const val = channel[i];
+          if (val < min) min = val;
+          if (val > max) max = val;
         }
-
-        const y1 = (1 + min) * amp;
-        const y2 = (1 + max) * amp;
-        context.moveTo(x + 0.5, y1);
-        context.lineTo(x + 0.5, y2);
+        context.moveTo(x + 0.5, (1 + min) * amp);
+        context.lineTo(x + 0.5, (1 + max) * amp);
       }
-
       context.stroke();
     };
 
     draw();
     window.addEventListener("resize", draw);
-    return () => {
-      window.removeEventListener("resize", draw);
-    };
+    return () => window.removeEventListener("resize", draw);
   }, [buffer, color]);
 
-  const getRawProgressFromClientX = useCallback(
-    (clientX: number, element: HTMLDivElement) => {
-      const rect = element.getBoundingClientRect();
-      if (rect.width <= 0) return null;
-      return clamp01((clientX - rect.left) / rect.width);
-    },
-    [clamp01],
-  );
-
   return (
-    <div
-      className="space-y-3 rounded-2xl border p-4 transition"
-      style={{
-        borderColor: `${color}55`,
-        background: `linear-gradient(140deg, ${color}10, rgba(10,15,20,0.55))`,
-        boxShadow: isPlaying && !isMuted ? `0 0 30px ${color}1f` : "none",
-      }}
-    >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span
-            className="inline-block h-3 w-3 rounded-full"
-            style={{ backgroundColor: color }}
+    <div className={`flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-white/[0.02] transition-all ${isPlaying && !isMuted ? "shadow-[0_0_20px] shadow-white/[0.02]" : ""}`}>
+      {/* Left: Volume Slider & Controls */}
+      <div className="flex flex-col items-center gap-4 w-12 shrink-0">
+        <div className="relative h-24 w-1.5 bg-white/5 rounded-full overflow-hidden">
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={1}
+            value={isMuted ? 0 : Math.round(volume * 100)}
+            onChange={(e) => onVolumeChange(Number(e.target.value) / 100)}
+            className="absolute inset-0 w-24 h-1.5 -rotate-90 origin-center translate-y-[44px] -translate-x-[45px] cursor-pointer accent-[#55D6C2] opacity-0 z-10"
           />
-          <span className={`text-sm font-semibold ${isMuted ? "text-white/40" : "text-white/80"}`}>
-            {stem.name || `Stem ${index + 1}`}
-          </span>
-        </div>
-        <span className="text-xs text-white/60">{Math.round((isMuted ? 0 : volume) * 100)}%</span>
-      </div>
-
-      <div className="relative h-16 overflow-hidden rounded-xl border border-white/10">
-        <canvas
-          ref={canvasRef}
-          className={`h-full w-full ${isMuted ? "opacity-40" : "opacity-90"}`}
-        />
-
-        {sectionModeEnabled && sectionCount > 0 ? (
-          <div className="pointer-events-none absolute inset-0">
-            {Array.from({ length: sectionCount }).map((_, sectionIndex) => {
-              const isCurrentSection = sectionIndex === currentSectionIndex;
-              const isHoveredSection =
-                sectionIndex === hoverSectionIndex || sectionIndex === pressedSectionIndex;
-
-              return (
-                <div
-                  key={sectionIndex}
-                  className="absolute inset-y-0"
-                  style={{
-                    left: `${sectionIndex * sectionStep * 100}%`,
-                    width: `${sectionStep * 100}%`,
-                    background: isHoveredSection
-                      ? `${color}33`
-                      : isCurrentSection
-                        ? `${color}1a`
-                        : "transparent",
-                    borderRight:
-                      sectionIndex < sectionCount - 1
-                        ? "1px solid rgba(255,255,255,0.12)"
-                        : "none",
-                  }}
-                />
-              );
-            })}
-          </div>
-        ) : null}
-
-        <div
-          className="pointer-events-none absolute inset-y-0 left-0"
-          style={{
-            width: `${waveformProgress * 100}%`,
-            background: `${color}22`,
-          }}
-        />
-        <div
-          className="pointer-events-none absolute inset-y-0 w-px bg-white/80"
-          style={{ left: `${waveformProgress * 100}%` }}
-        />
-        {hoverProgress !== null ? (
           <div
-            className="pointer-events-none absolute inset-y-0 w-px bg-cyan-300/90"
-            style={{ left: `${hoverProgress * 100}%` }}
+            className="absolute bottom-0 left-0 right-0 bg-[#55D6C2] transition-all"
+            style={{ height: `${isMuted ? 0 : volume * 100}%` }}
           />
-        ) : null}
-
-        <div
-          className="absolute inset-0 z-20 cursor-pointer touch-none"
-          style={{ touchAction: "none" }}
-          onPointerDown={(event) => {
-            event.preventDefault();
-            activePointerIdRef.current = event.pointerId;
-            event.currentTarget.setPointerCapture(event.pointerId);
-            const rawProgress = getRawProgressFromClientX(event.clientX, event.currentTarget);
-            if (rawProgress !== null) {
-              setHoverProgress(rawProgress);
-            }
-            seekFromClientX(event.clientX, event.currentTarget);
-          }}
-          onPointerMove={(event) => {
-            const rawProgress = getRawProgressFromClientX(event.clientX, event.currentTarget);
-            if (rawProgress !== null) {
-              setHoverProgress(rawProgress);
-            }
-
-            if (activePointerIdRef.current === event.pointerId) {
-              event.preventDefault();
-              seekFromClientX(event.clientX, event.currentTarget);
-            }
-          }}
-          onPointerUp={(event) => {
-            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-              event.currentTarget.releasePointerCapture(event.pointerId);
-            }
-            if (activePointerIdRef.current === event.pointerId) {
-              activePointerIdRef.current = null;
-            }
-            setDragProgress(null);
-          }}
-          onPointerCancel={(event) => {
-            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-              event.currentTarget.releasePointerCapture(event.pointerId);
-            }
-            if (activePointerIdRef.current === event.pointerId) {
-              activePointerIdRef.current = null;
-            }
-            setDragProgress(null);
-          }}
-          onPointerLeave={() => {
-            setHoverProgress(null);
-          }}
-          onLostPointerCapture={() => {
-            activePointerIdRef.current = null;
-            setDragProgress(null);
-          }}
-        />
+        </div>
+        <div className="flex flex-col gap-1 w-full">
+          <button
+            onClick={onToggleMute}
+            className={`w-full py-1 text-[8px] font-black rounded uppercase transition ${isMuted ? "bg-rose-500 text-white" : "bg-white/10 text-white/40 hover:bg-white/20"}`}
+          >
+            Mute
+          </button>
+          <button
+            onClick={onToggleSolo}
+            className={`w-full py-1 text-[8px] font-black rounded uppercase transition ${isSoloed ? "text-[#0B2A4A]" : "bg-white/10 text-white/40 hover:bg-white/20"}`}
+            style={isSoloed ? { backgroundColor: color } : {}}
+          >
+            Solo
+          </button>
+        </div>
       </div>
 
-      <input
-        type="range"
-        min={0}
-        max={100}
-        step={1}
-        value={isMuted ? 0 : Math.round(volume * 100)}
-        onChange={(event) => onVolumeChange(Number(event.target.value) / 100)}
-        className="h-2 w-full cursor-pointer accent-sky-400"
-      />
+      {/* Right: Waveform & Label */}
+      <div className="flex-1 space-y-2">
+        <div className="flex items-center justify-between">
+          <h4 className={`text-xs font-black uppercase tracking-widest ${isMuted ? "text-white/20" : "text-white/60"}`}>
+            {stem.name || `Stem ${index + 1}`}
+          </h4>
+          <span className="text-[10px] font-bold text-white/20">{Math.round((isMuted ? 0 : volume) * 100)}%</span>
+        </div>
 
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={onToggleMute}
-          className={`flex-1 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-            isMuted
-              ? "bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.3)]"
-              : "bg-white/5 text-white/40 hover:bg-white/10"
-          }`}
-        >
-          {isMuted ? "MUTED" : "MUTE"}
-        </button>
-        <button
-          type="button"
-          onClick={onToggleSolo}
-          className={`flex-1 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-            isSoloed
-              ? "text-slate-900 shadow-lg"
-              : "bg-white/5 text-white/40 hover:bg-white/10"
-          }`}
-          style={isSoloed ? { background: color, boxShadow: `0 0 20px ${color}44` } : undefined}
-        >
-          {isSoloed ? "SOLO ACTIVE" : "SOLO"}
-        </button>
+        <div className="relative h-16 bg-black/20 rounded-lg overflow-hidden border border-white/5">
+          <canvas ref={canvasRef} className={`w-full h-full ${isMuted ? "opacity-20 grayscale" : "opacity-60"}`} />
+
+          <div
+            className="absolute inset-y-0 left-0 transition-all pointer-events-none"
+            style={{ width: `${waveformProgress * 100}%`, backgroundColor: `${color}11`, borderRight: `1px solid ${color}` }}
+          />
+
+          <div
+            className="absolute inset-0 cursor-crosshair z-10"
+            onPointerDown={(e) => { e.preventDefault(); seekFromClientX(e.clientX, e.currentTarget); }}
+          />
+        </div>
       </div>
     </div>
   );
