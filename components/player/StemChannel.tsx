@@ -139,10 +139,10 @@ export default function StemChannel({
   }, [buffer, color]);
 
   return (
-    <div className={`flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-white/[0.02] transition-all ${isPlaying && !isMuted ? "shadow-[0_0_20px] shadow-white/[0.02]" : ""}`}>
+    <div className={`flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-white/[0.02] transition-all ${isPlaying && !isMuted ? "shadow-[4px_4px_0_rgba(0,0,0,0.2)]" : ""}`}>
       {/* Left: Volume Slider & Controls */}
       <div className="flex flex-col items-center gap-4 w-12 shrink-0">
-        <div className="relative h-24 w-1.5 bg-white/5 rounded-full overflow-hidden">
+        <div className="relative h-24 w-3 bg-white/5 border border-white/10 overflow-hidden" style={{ imageRendering: "pixelated" }}>
           <input
             type="range"
             min={0}
@@ -150,23 +150,26 @@ export default function StemChannel({
             step={1}
             value={isMuted ? 0 : Math.round(volume * 100)}
             onChange={(e) => onVolumeChange(Number(e.target.value) / 100)}
-            className="absolute inset-0 w-24 h-1.5 -rotate-90 origin-center translate-y-[44px] -translate-x-[45px] cursor-pointer accent-[#55D6C2] opacity-0 z-10"
+            className="absolute inset-0 w-24 h-3 -rotate-90 origin-center translate-y-[44px] -translate-x-[45px] cursor-pointer accent-[#55D6C2] opacity-0 z-10"
           />
           <div
             className="absolute bottom-0 left-0 right-0 bg-[#55D6C2] transition-all"
-            style={{ height: `${isMuted ? 0 : volume * 100}%` }}
+            style={{
+              height: `${isMuted ? 0 : volume * 100}%`,
+              transition: "height 0.1s steps(10)"
+            }}
           />
         </div>
         <div className="flex flex-col gap-1 w-full">
           <button
             onClick={onToggleMute}
-            className={`w-full py-1 text-[8px] font-black rounded uppercase transition ${isMuted ? "bg-rose-500 text-white" : "bg-white/10 text-white/40 hover:bg-white/20"}`}
+            className={`w-full py-1 text-[8px] font-black rounded uppercase transition shadow-[2px_2px_0_rgba(0,0,0,0.2)] ${isMuted ? "bg-rose-500 text-white" : "bg-white/10 text-white/40 hover:bg-white/20"}`}
           >
             Mute
           </button>
           <button
             onClick={onToggleSolo}
-            className={`w-full py-1 text-[8px] font-black rounded uppercase transition ${isSoloed ? "text-[#0B2A4A]" : "bg-white/10 text-white/40 hover:bg-white/20"}`}
+            className={`w-full py-1 text-[8px] font-black rounded uppercase transition shadow-[2px_2px_0_rgba(0,0,0,0.2)] ${isSoloed ? "text-[#0B2A4A]" : "bg-white/10 text-white/40 hover:bg-white/20"}`}
             style={isSoloed ? { backgroundColor: color } : {}}
           >
             Solo

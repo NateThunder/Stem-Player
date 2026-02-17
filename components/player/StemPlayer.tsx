@@ -271,6 +271,21 @@ export default function StemPlayer({ track }: StemPlayerProps) {
 
   return (
     <section className="space-y-8">
+      {/* Pixel Visualizer */}
+      <div className="flex justify-center h-8 gap-1 items-end">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div
+            key={i}
+            className="w-4 bg-[#55D6C2] shadow-[2px_2px_0_rgba(0,0,0,0.2)]"
+            style={{
+              height: isPlaying ? `${20 + Math.random() * 80}%` : "20%",
+              transition: "height 0.15s steps(4)",
+              opacity: 0.3 + (i % 3) * 0.2
+            }}
+          />
+        ))}
+      </div>
+
       <header className="flex flex-wrap items-end justify-between gap-6">
         <div className="space-y-1">
           <h2 className="text-3xl font-bold text-white tracking-tight">{track.title}</h2>

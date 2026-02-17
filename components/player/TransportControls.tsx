@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import PixelIcon from "./PixelIcon";
 
 type TransportControlsProps = {
   isPlaying: boolean;
@@ -60,23 +61,17 @@ export default function TransportControls({
             className="text-white/20 hover:text-white transition active:scale-90"
             title="Restart"
           >
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
-              <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
-            </svg>
+            <PixelIcon type="restart" size={24} />
           </button>
 
           <button
             onClick={onPlayPause}
-            className="h-14 w-14 rounded-full bg-[#55D6C2] text-[#0B2A4A] flex items-center justify-center shadow-lg shadow-[#55D6C2]/20 transition hover:scale-110 active:scale-95"
+            className="h-14 w-14 rounded-full bg-[#55D6C2] text-[#0B2A4A] flex items-center justify-center shadow-[4px_4px_0_#0B2A4A22] transition hover:scale-110 active:scale-95"
           >
             {isPlaying ? (
-              <svg viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor">
-                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-              </svg>
+              <PixelIcon type="pause" size={32} color="#0B2A4A" />
             ) : (
-              <svg viewBox="0 0 24 24" className="h-8 w-8 translate-x-0.5" fill="currentColor">
-                <path d="M8 5v14l11-7z" />
-              </svg>
+              <PixelIcon type="play" size={32} color="#0B2A4A" />
             )}
           </button>
 
