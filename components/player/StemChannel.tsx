@@ -313,7 +313,7 @@ export default function StemChannel({
         step={1}
         value={isMuted ? 0 : Math.round(volume * 100)}
         onChange={(event) => onVolumeChange(Number(event.target.value) / 100)}
-        className="h-2 w-full cursor-pointer accent-sky-400"
+        className="h-2 w-full cursor-pointer accent-[#55D6C2]"
       />
 
       <div className="flex gap-2">
@@ -333,7 +333,7 @@ export default function StemChannel({
           onClick={onToggleSolo}
           className={`flex-1 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             isSoloed
-              ? "text-slate-900 shadow-lg"
+              ? "text-[#0B2A4A] shadow-lg"
               : "bg-white/5 text-white/40 hover:bg-white/10"
           }`}
           style={isSoloed ? { background: color, boxShadow: `0 0 20px ${color}44` } : undefined}

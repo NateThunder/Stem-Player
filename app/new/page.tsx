@@ -274,23 +274,23 @@ function NewStemPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-5xl px-6 py-10 pb-32">
-        <header className="mb-8 flex flex-wrap items-end justify-between gap-6">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tight text-white">
-              {loadedTrack ? loadedTrack.title : "New Session"}
+    <div className="min-h-screen bg-[#0B2A4A] text-white">
+      <div className="mx-auto max-w-6xl px-6 py-16 pb-48">
+        <header className="mb-12 flex flex-wrap items-end justify-between gap-8">
+          <div className="space-y-3">
+            <h1 className="text-5xl font-black tracking-tight text-white">
+              {loadedTrack ? loadedTrack.title : "New Studio Session"}
             </h1>
-            <p className="text-sm font-medium text-white/50">
-              {loadedTrack?.artistName || "Configure your stems and start playing."}
+            <p className="text-xl font-medium text-white/40">
+              {loadedTrack?.artistName || "Upload stems and build your arrangement."}
             </p>
           </div>
           <button
             onClick={() => setShowSetup(!showSetup)}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition ${
+            className={`flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all ${
               showSetup
                 ? "bg-white/10 text-white"
-                : "bg-sky-500/10 text-sky-400 hover:bg-sky-500/20"
+                : "bg-[#55D6C2]/10 text-[#55D6C2] hover:bg-[#55D6C2]/20"
             }`}
           >
             <svg
@@ -307,34 +307,34 @@ function NewStemPageContent() {
         </header>
 
         {showSetup && (
-        <section className="mb-12 space-y-8 rounded-3xl border border-white/10 bg-white/[0.02] p-8 shadow-2xl">
-          <div className="grid gap-6 md:grid-cols-2">
-            <label className="space-y-1">
-              <span className="text-xs text-white/60">Track title</span>
+        <section className="mb-16 space-y-10 rounded-[40px] border border-white/10 bg-white/[0.02] p-10 shadow-3xl backdrop-blur-sm">
+          <div className="grid gap-8 md:grid-cols-2">
+            <label className="space-y-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-white/40">Track Title</span>
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-slate-900 px-3 py-2 text-sm outline-none ring-sky-500/50 focus:ring"
+                className="w-full rounded-2xl border border-white/10 bg-[#0B2A4A]/50 px-5 py-4 text-lg outline-none ring-[#55D6C2]/30 focus:ring-2 transition-all"
               />
             </label>
 
-            <label className="space-y-1">
-              <span className="text-xs text-white/60">Artist name</span>
+            <label className="space-y-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-white/40">Artist Name</span>
               <input
                 value={artistName}
                 onChange={(event) => setArtistName(event.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-slate-900 px-3 py-2 text-sm outline-none ring-sky-500/50 focus:ring"
+                className="w-full rounded-2xl border border-white/10 bg-[#0B2A4A]/50 px-5 py-4 text-lg outline-none ring-[#55D6C2]/30 focus:ring-2 transition-all"
                 placeholder="Optional"
               />
             </label>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-6">
-            <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-10">
+            <div className="flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={addStem}
-                className="rounded-xl bg-white/5 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/10 active:scale-95"
+                className="rounded-2xl bg-white/5 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10 active:scale-95"
               >
                 + Add Stem
               </button>
@@ -353,24 +353,24 @@ function NewStemPageContent() {
                 type="button"
                 onClick={() => bulkUploadInputRef.current?.click()}
                 disabled={isBulkUploading}
-                className="rounded-xl bg-cyan-500/10 px-4 py-2 text-sm font-bold text-cyan-400 transition hover:bg-cyan-500/20 disabled:opacity-60 active:scale-95"
+                className="rounded-2xl bg-[#55D6C2]/10 px-6 py-3 text-sm font-bold text-[#55D6C2] transition hover:bg-[#55D6C2]/20 disabled:opacity-60 active:scale-95"
               >
                 {isBulkUploading ? "Uploading..." : "Bulk Upload"}
               </button>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={loadTrack}
-                className="rounded-xl bg-sky-500 px-6 py-2 text-sm font-bold text-slate-900 transition hover:bg-sky-400 active:scale-95"
+                className="rounded-2xl bg-[#55D6C2] px-8 py-3 text-sm font-bold text-[#0B2A4A] transition hover:scale-105 active:scale-95"
               >
                 Load Player
               </button>
               <button
                 type="button"
                 onClick={handleSaveSession}
-                className="rounded-xl bg-emerald-500/10 px-6 py-2 text-sm font-bold text-emerald-400 transition hover:bg-emerald-500/20 active:scale-95"
+                className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-8 py-3 text-sm font-bold text-emerald-400 transition hover:bg-emerald-500/20 active:scale-95"
               >
                 Save Session
               </button>
@@ -395,7 +395,7 @@ function NewStemPageContent() {
                   <input
                     value={stem.name}
                     onChange={(event) => updateStem(index, { name: event.target.value })}
-                    className="h-12 rounded-xl border border-white/10 bg-black/25 px-4 text-sm text-white outline-none ring-sky-500/40 placeholder:text-white/35 focus:ring"
+                    className="h-12 rounded-xl border border-white/10 bg-black/25 px-4 text-sm text-white outline-none ring-[#55D6C2]/40 placeholder:text-white/35 focus:ring"
                     placeholder="Stem name (e.g. Guitar, Bass, Drums...)"
                   />
                   <label className="inline-flex h-12 cursor-pointer items-center justify-center rounded-xl border border-white/15 bg-white/5 px-5 text-sm font-medium text-white/80 transition hover:bg-white/10">
@@ -478,8 +478,8 @@ export default function NewStemPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-slate-950 text-white">
-          <div className="mx-auto max-w-5xl px-6 py-10 text-sm text-white/60">Loading...</div>
+        <div className="min-h-screen bg-[#0B2A4A] text-white">
+          <div className="mx-auto max-w-5xl px-6 py-20 text-sm text-white/40">Loading studio...</div>
         </div>
       }
     >
