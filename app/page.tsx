@@ -1,136 +1,47 @@
-import Image from "next/image";
 import Link from "next/link";
-import styles from "./page.module.css";
 
 export default function Home() {
   return (
-    <div className={styles.container}>
-      {/* Hero Section */}
-      <header className={styles.hero}>
-        <div className={styles.heroBg}>
-          <div className={styles.blob1}></div>
-          <div className={styles.blob2}></div>
-        </div>
-        <div className={styles.heroContent}>
-          <div className={styles.heroText}>
-            <h1 className={styles.headline}>
-              Master your mix with <span>STEMS.IO</span>
-            </h1>
-            <p className={styles.subhead}>
-              The ultimate SaaS platform for producers and engineers to manage, share, and play stems with zero friction.
-            </p>
-            <div className={styles.heroActions}>
-              <Link href="/new" className={styles.primaryBtnLarge}>Start for free</Link>
-              <Link href="#demo" className={styles.secondaryBtnLarge}>Watch Demo</Link>
-            </div>
-            <div className={styles.socialProofSmall}>
-              Join 10,000+ producers worldwide
-            </div>
+    <div className="min-h-screen bg-[#0B2A4A] text-white flex flex-col items-center justify-center p-6 text-center">
+      <div className="max-w-2xl space-y-8">
+        <div className="space-y-4">
+          <div className="mx-auto h-20 w-20 rounded-2xl bg-[#55D6C2] flex items-center justify-center shadow-lg shadow-[#55D6C2]/20">
+            <svg viewBox="0 0 24 24" className="h-12 w-12 text-[#0B2A4A]" fill="currentColor">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+            </svg>
           </div>
-          <div className={styles.heroImage}>
-            <div className={styles.illustrationPlaceholder}>
-              <Image
-                src="/images/hero-illustration.svg"
-                alt="STEMS.IO Illustration"
-                width={500}
-                height={500}
-                className={styles.vectorIcon}
-                priority
-              />
-            </div>
-          </div>
+          <h1 className="text-6xl font-black tracking-tighter">STEMS.IO</h1>
+          <p className="text-xl text-white/50 font-medium">Simple, powerful stem playback for musicians and producers.</p>
         </div>
-      </header>
 
-      {/* Social Proof Row */}
-      <section className={styles.socialProof}>
-        <div className={styles.sectionContent}>
-          <p className={styles.trustedText}>Trusted by industry leaders</p>
-          <div className={styles.logoGrid}>
-            <div className={styles.logoPlaceholder}>PulseAudio</div>
-            <div className={styles.logoPlaceholder}>BeatSync</div>
-            <div className={styles.logoPlaceholder}>WaveForm</div>
-            <div className={styles.logoPlaceholder}>SoundStack</div>
-            <div className={styles.logoPlaceholder}>MixMaster</div>
-          </div>
-        </div>
-      </section>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Link
+            href="/new"
+            className="group relative overflow-hidden rounded-2xl bg-[#55D6C2] p-8 text-left transition hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <div className="relative z-10 space-y-2">
+              <h2 className="text-2xl font-bold text-[#0B2A4A]">New Session</h2>
+              <p className="text-[#0B2A4A]/60 font-medium">Create a new studio project and upload stems.</p>
+            </div>
+            <div className="absolute -right-4 -bottom-4 h-24 w-24 text-[#0B2A4A]/10 transition group-hover:scale-110">
+              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            </div>
+          </Link>
 
-      {/* Features Section */}
-      <section id="features" className={styles.features}>
-        <div className={styles.sectionContent}>
-          <h2 className={styles.sectionTitle}>Built for modern production</h2>
-          <div className={styles.featureGrid}>
-            <div className={styles.featureCard}>
-              <div className={styles.featureIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg>
-              </div>
-              <h3>Smart Stem Management</h3>
-              <p>Organize your tracks with intelligent tagging and automated cloud syncing.</p>
+          <Link
+            href="/saved"
+            className="group relative overflow-hidden rounded-2xl bg-white/5 p-8 text-left border border-white/10 transition hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <div className="relative z-10 space-y-2">
+              <h2 className="text-2xl font-bold text-white">Library</h2>
+              <p className="text-white/40 font-medium">Open your saved sessions and previous tracks.</p>
             </div>
-            <div className={styles.featureCard}>
-              <div className={styles.featureIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.5 1.5" />
-                </svg>
-              </div>
-              <h3>Real-time Collaboration</h3>
-              <p>Share sessions with artists and get feedback instantly with time-stamped comments.</p>
+            <div className="absolute -right-4 -bottom-4 h-24 w-24 text-white/5 transition group-hover:scale-110">
+              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
             </div>
-            <div className={styles.featureCard}>
-              <div className={styles.featureIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M10 8l6 4-6 4V8z" />
-                </svg>
-              </div>
-              <h3>Integrated Web Player</h3>
-              <p>Play multi-track stems directly in your browser with our high-fidelity Web Audio engine.</p>
-            </div>
-          </div>
+          </Link>
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className={styles.ctaBanner}>
-        <div className={styles.ctaContent}>
-          <h2>Ready to elevate your workflow?</h2>
-          <p>Join thousands of professionals who trust StemFlow with their music.</p>
-          <Link href="/new" className={styles.primaryBtnLarge}>Get started for free</Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <div className={styles.footerBrand}>
-            <div className={styles.logo}>
-              <div className={styles.logoMark}></div>
-              <span>STEMS.IO</span>
-            </div>
-            <p>&copy; 2025 STEMS.IO Inc. All rights reserved.</p>
-          </div>
-          <div className={styles.footerLinks}>
-            <div className={styles.linkGroup}>
-              <h4>Product</h4>
-              <Link href="#features">Features</Link>
-              <Link href="#pricing">Pricing</Link>
-            </div>
-            <div className={styles.linkGroup}>
-              <h4>Company</h4>
-              <Link href="#about">About</Link>
-              <Link href="#contact">Contact</Link>
-            </div>
-            <div className={styles.linkGroup}>
-              <h4>Legal</h4>
-              <Link href="#privacy">Privacy</Link>
-              <Link href="#terms">Terms</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }

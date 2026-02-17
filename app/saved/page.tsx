@@ -60,13 +60,13 @@ export default function SavedSessionsPage() {
         </header>
 
         {!isHydrated ? (
-          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-[32px] border border-white/10 bg-white/[0.02]">
+          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.02]">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#55D6C2]/20 border-t-[#55D6C2]" />
             <p className="mt-6 text-lg font-medium text-white/50">Loading your collection...</p>
           </div>
         ) : !hasSessions ? (
-          <div className="flex min-h-[500px] flex-col items-center justify-center rounded-[32px] border border-dashed border-white/10 bg-white/[0.02] p-12 text-center">
-            <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-white/5 text-[#55D6C2]/40">
+          <div className="flex min-h-[500px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-12 text-center">
+            <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-xl bg-white/5 text-[#55D6C2]/40">
               <svg viewBox="0 0 24 24" className="h-12 w-12" fill="currentColor">
                 <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
               </svg>
@@ -87,7 +87,7 @@ export default function SavedSessionsPage() {
             {sessions.map((session) => (
               <article
                 key={session.id}
-                className="group relative flex flex-col overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.03] p-8 transition-all hover:border-[#55D6C2]/30 hover:bg-white/[0.05] hover:shadow-2xl hover:shadow-[#55D6C2]/5"
+                className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-8 transition-all hover:border-[#55D6C2]/30 hover:bg-white/[0.05] hover:shadow-2xl hover:shadow-[#55D6C2]/5"
               >
                 <div className="mb-8 flex-1">
                   <div className="mb-6 h-1 w-12 rounded-full bg-[#55D6C2]" />
