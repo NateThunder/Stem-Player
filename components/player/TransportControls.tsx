@@ -25,7 +25,8 @@ export default function TransportControls({
   onSeek,
 }: TransportControlsProps) {
   return (
-    <div className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-6 z-50">
+    <div className="space-y-4 rounded-3xl border border-white/15 bg-slate-900/80 p-5 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)]">
       <div className="space-y-2">
         <input
           type="range"
@@ -72,6 +73,7 @@ export default function TransportControls({
           )}
         </button>
       </div>
+    </div>
     </div>
   );
 }
