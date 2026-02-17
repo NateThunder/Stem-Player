@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import StemPlayer, { type Track } from "@/components/player/StemPlayer";
 import { getSavedSessionById, saveSession, listSavedSessions, type SavedSession } from "@/lib/savedSessions";
+import PixelIcon from "@/components/player/PixelIcon";
 
 type StemDraft = {
   name: string;
@@ -50,6 +51,7 @@ function StemPlayerHomeContent() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [recentSessions, setRecentSessions] = useState<SavedSession[]>([]);
+  const [isDraggingGlobal, setIsDraggingGlobal] = useState(false);
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -139,12 +141,13 @@ function StemPlayerHomeContent() {
     }
   };
 
-  const handleBulkUpload = async (files: FileList | null) => {
+  const handleBulkUpload = async (files: FileList | File[] | null) => {
     if (!files?.length) return;
     setIsBulkUploading(true);
     const startIndex = stems.length;
 
-    const newDrafts = Array.from(files).map((f, i) => ({
+    const filesArray = Array.from(files);
+    const newDrafts = filesArray.map((f, i) => ({
       name: normalizeNameFromFile(f.name) || `Stem ${startIndex + i + 1}`,
       fileUrl: "",
       color: stemPalette[(startIndex + i) % stemPalette.length],
@@ -153,8 +156,8 @@ function StemPlayerHomeContent() {
     setStems(prev => [...prev, ...newDrafts]);
 
     // Simple sequential upload for better stability in this simple view
-    for (let i = 0; i < files.length; i++) {
-      await uploadStem(startIndex + i, files[i]);
+    for (let i = 0; i < filesArray.length; i++) {
+      await uploadStem(startIndex + i, filesArray[i]);
     }
     setIsBulkUploading(false);
   };
@@ -171,10 +174,8 @@ function StemPlayerHomeContent() {
       <header className="sticky top-0 z-50 bg-[#0B2A4A]/80 backdrop-blur-xl border-b border-white/5">
         <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="h-8 w-8 rounded-lg bg-[#55D6C2] flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="h-5 w-5 text-[#0B2A4A]" fill="currentColor">
-                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-              </svg>
+            <div className="h-8 w-8 rounded-lg bg-[#55D6C2] flex items-center justify-center shadow-[4px_4px_0_#0B2A4A22]">
+              <PixelIcon type="note" size={20} color="#0B2A4A" />
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-black tracking-tight leading-none uppercase">{title}</span>
@@ -201,7 +202,26 @@ function StemPlayerHomeContent() {
 
       <main className="mx-auto max-w-6xl px-6 py-12 space-y-12">
         {isSettingsOpen && (
-          <section className="bg-white/[0.03] rounded-2xl border border-white/10 p-8 space-y-8 animate-in fade-in slide-in-from-top-4 duration-300">
+          <section
+            onDragOver={(e) => { e.preventDefault(); setIsDraggingGlobal(true); }}
+            onDragLeave={() => setIsDraggingGlobal(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDraggingGlobal(false);
+              handleBulkUpload(e.dataTransfer.files);
+            }}
+            className={`relative bg-white/[0.03] rounded-2xl border p-8 space-y-8 animate-in fade-in slide-in-from-top-4 duration-300 transition-colors ${isDraggingGlobal ? "border-[#55D6C2] bg-[#55D6C2]/5" : "border-white/10"}`}
+          >
+            {isDraggingGlobal && (
+              <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#0B2A4A]/60 backdrop-blur-sm rounded-2xl pointer-events-none">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="h-16 w-16 rounded-full bg-[#55D6C2] flex items-center justify-center text-[#0B2A4A] animate-bounce">
+                    <svg viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                  </div>
+                  <span className="text-xl font-black uppercase tracking-widest text-[#55D6C2]">Drop to Upload Stems</span>
+                </div>
+              </div>
+            )}
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-white/30">Session Name</label>
@@ -227,7 +247,17 @@ function StemPlayerHomeContent() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {stems.map((s, i) => (
-                  <div key={i} className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5 group">
+                  <div
+                    key={i}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const file = e.dataTransfer.files[0];
+                      if (file) uploadStem(i, file);
+                    }}
+                    onDragOver={(e) => e.preventDefault()}
+                    className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5 group hover:border-[#55D6C2]/40 transition-colors"
+                  >
                     <div className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
                     <input value={s.name} onChange={e => updateStem(i, { name: e.target.value })} className="flex-1 bg-transparent text-[10px] font-black uppercase tracking-widest outline-none truncate" />
                     <label className="cursor-pointer text-[9px] font-black uppercase tracking-tighter text-[#55D6C2] hover:text-white transition whitespace-nowrap">
@@ -248,10 +278,8 @@ function StemPlayerHomeContent() {
           <StemPlayer track={track} />
         ) : !isSettingsOpen && (
           <div className="py-32 flex flex-col items-center justify-center text-center space-y-6">
-            <div className="h-20 w-20 rounded-2xl bg-white/5 flex items-center justify-center text-white/10">
-              <svg viewBox="0 0 24 24" className="h-10 w-10" fill="currentColor">
-                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-              </svg>
+            <div className="h-20 w-20 rounded-2xl bg-white/5 flex items-center justify-center text-white/10 shadow-[8px_8px_0_rgba(0,0,0,0.2)]">
+              <PixelIcon type="note" size={48} />
             </div>
             <div className="space-y-2">
               <h2 className="text-2xl font-black tracking-tight">Ready to play?</h2>
