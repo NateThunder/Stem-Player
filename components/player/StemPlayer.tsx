@@ -29,6 +29,7 @@ export default function StemPlayer({ track }: StemPlayerProps) {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [isSectionModeEnabled, setIsSectionModeEnabled] = useState(false);
+  const [masterVolume, setMasterVolume] = useState(1);
   const [volumes, setVolumes] = useState<Record<number, number>>({});
   const [mutedStems, setMutedStems] = useState<Record<number, boolean>>({});
   const [soloedStems, setSoloedStems] = useState<Record<number, boolean>>({});
@@ -138,7 +139,7 @@ export default function StemPlayer({ track }: StemPlayerProps) {
 
     gainNodesRef.current.forEach((gainNode, index) => {
       if (!gainNode) return;
-      let volume = volumes[index] ?? 1;
+      let volume = (volumes[index] ?? 1) * masterVolume;
       if (hasSolo) {
         volume = soloedStems[index] ? volume : 0;
       } else if (mutedStems[index]) {
@@ -146,7 +147,7 @@ export default function StemPlayer({ track }: StemPlayerProps) {
       }
       gainNode.gain.setValueAtTime(volume, now);
     });
-  }, [volumes, mutedStems, soloedStems]);
+  }, [volumes, mutedStems, soloedStems, masterVolume]);
 
   const startPlayback = useCallback(
     (offset = 0) => {
@@ -176,7 +177,7 @@ export default function StemPlayer({ track }: StemPlayerProps) {
         source.connect(gainNode);
         gainNode.connect(context.destination);
 
-        let volume = volumes[index] ?? 1;
+        let volume = (volumes[index] ?? 1) * masterVolume;
         if (hasSolo) {
           volume = soloedStems[index] ? volume : 0;
         } else if (mutedStems[index]) {
@@ -209,7 +210,7 @@ export default function StemPlayer({ track }: StemPlayerProps) {
       };
       tick();
     },
-    [duration, mutedStems, soloedStems, stopAll, volumes],
+    [duration, mutedStems, soloedStems, stopAll, volumes, masterVolume],
   );
 
   const handlePlayPause = useCallback(() => {
@@ -269,23 +270,54 @@ export default function StemPlayer({ track }: StemPlayerProps) {
   }
 
   return (
-    <section className="space-y-5">
-      <header>
-        <h2 className="text-2xl font-semibold text-white">{track.title}</h2>
-        {track.artistName ? <p className="text-sm text-white/60">{track.artistName}</p> : null}
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsSectionModeEnabled((previous) => !previous)}
-            className={`rounded-lg border px-3 py-1.5 text-xs transition ${
-              isSectionModeEnabled
-                ? "border-cyan-300/50 bg-cyan-500/20 text-cyan-100"
-                : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
-            }`}
-          >
-            Section Seek {isSectionModeEnabled ? "On" : "Off"}
-          </button>
-          <span className="text-xs text-white/50">{sectionCount} sections</span>
+    <section className="space-y-8">
+      <header className="flex flex-wrap items-end justify-between gap-6">
+        <div className="space-y-1">
+          <h2 className="text-3xl font-bold text-white tracking-tight">{track.title}</h2>
+          {track.artistName ? (
+            <p className="text-lg font-medium text-white/50">{track.artistName}</p>
+          ) : null}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <div className="flex items-center gap-3">
+            <svg viewBox="0 0 24 24" className="h-5 w-5 text-white/40" fill="currentColor">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+            </svg>
+            <div className="w-32">
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={masterVolume}
+                onChange={(e) => setMasterVolume(Number(e.target.value))}
+                className="h-1.5 w-full cursor-pointer accent-sky-400"
+              />
+            </div>
+            <span className="w-8 text-right text-xs font-bold text-white/60">
+              {Math.round(masterVolume * 100)}%
+            </span>
+          </div>
+
+          <div className="h-8 w-px bg-white/10" />
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsSectionModeEnabled((previous) => !previous)}
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                isSectionModeEnabled
+                  ? "bg-sky-500 text-slate-900"
+                  : "bg-white/5 text-white/60 hover:bg-white/10"
+              }`}
+            >
+              Section Seek {isSectionModeEnabled ? "On" : "Off"}
+            </button>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">
+              {sectionCount} Parts
+            </span>
+          </div>
         </div>
       </header>
 

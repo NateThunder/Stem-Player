@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import StemPlayer, { type Track } from "@/components/player/StemPlayer";
@@ -46,6 +45,7 @@ function NewStemPageContent() {
   const [artistName, setArtistName] = useState("");
   const [stems, setStems] = useState<StemDraft[]>(defaultStems);
   const [loadedTrack, setLoadedTrack] = useState<Track | null>(null);
+  const [showSetup, setShowSetup] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uploadingStemIndex, setUploadingStemIndex] = useState<number | null>(null);
   const [isBulkUploading, setIsBulkUploading] = useState(false);
@@ -87,6 +87,7 @@ function NewStemPageContent() {
           color: stem.color,
         })),
       });
+      setShowSetup(false);
       setError(null);
     };
 
@@ -141,6 +142,7 @@ function NewStemPageContent() {
       artistName: artistName.trim() || undefined,
       stems: preparedStems,
     });
+    setShowSetup(false);
   };
 
   const handleSaveSession = () => {
@@ -273,25 +275,40 @@ function NewStemPageContent() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-5xl px-6 py-10">
-        <header className="mb-8 space-y-2">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">My Stem Player</h1>
-            <Link
-              href="/saved"
-              className="rounded-lg border border-white/15 px-4 py-2 text-sm text-white/80 transition hover:bg-white/10"
-            >
-              Saved Stems
-            </Link>
+      <div className="mx-auto max-w-5xl px-6 py-10 pb-32">
+        <header className="mb-8 flex flex-wrap items-end justify-between gap-6">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-black tracking-tight text-white">
+              {loadedTrack ? loadedTrack.title : "New Session"}
+            </h1>
+            <p className="text-sm font-medium text-white/50">
+              {loadedTrack?.artistName || "Configure your stems and start playing."}
+            </p>
           </div>
-          <p className="max-w-2xl text-sm text-white/70">
-            Add stem URLs or pick audio files from your local drive, then load a synchronized Web Audio player. Best
-            results come from stems exported from the same timeline start and sample rate.
-          </p>
+          <button
+            onClick={() => setShowSetup(!showSetup)}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition ${
+              showSetup
+                ? "bg-white/10 text-white"
+                : "bg-sky-500/10 text-sky-400 hover:bg-sky-500/20"
+            }`}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className={`h-4 w-4 transition-transform ${showSetup ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
+              <path d="M19 9l-7 7-7-7" />
+            </svg>
+            {showSetup ? "Hide Setup" : "Edit Setup"}
+          </button>
         </header>
 
-        <section className="mb-8 space-y-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-          <div className="grid gap-4 md:grid-cols-2">
+        {showSetup && (
+        <section className="mb-12 space-y-8 rounded-3xl border border-white/10 bg-white/[0.02] p-8 shadow-2xl">
+          <div className="grid gap-6 md:grid-cols-2">
             <label className="space-y-1">
               <span className="text-xs text-white/60">Track title</span>
               <input
@@ -312,50 +329,55 @@ function NewStemPageContent() {
             </label>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={addStem}
-              className="rounded-lg border border-white/15 px-4 py-2 text-sm text-white/80 transition hover:bg-white/10"
-            >
-              Add Stem
-            </button>
-            <input
-              ref={bulkUploadInputRef}
-              type="file"
-              accept="audio/*"
-              multiple
-              className="hidden"
-              onChange={(event) => {
-                void handleBulkStemFilePick(event.target.files);
-                event.currentTarget.value = "";
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => bulkUploadInputRef.current?.click()}
-              disabled={isBulkUploading}
-              className="rounded-lg border border-cyan-300/30 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-100 transition hover:bg-cyan-500/20 disabled:opacity-60"
-            >
-              {isBulkUploading ? "Uploading Stems..." : "Upload Multiple Stems"}
-            </button>
-            <button
-              type="button"
-              onClick={loadTrack}
-              className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-sky-400"
-            >
-              Load Track
-            </button>
-            <button
-              type="button"
-              onClick={handleSaveSession}
-              className="rounded-lg border border-emerald-400/40 bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/30"
-            >
-              Save Session
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-6">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={addStem}
+                className="rounded-xl bg-white/5 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/10 active:scale-95"
+              >
+                + Add Stem
+              </button>
+              <input
+                ref={bulkUploadInputRef}
+                type="file"
+                accept="audio/*"
+                multiple
+                className="hidden"
+                onChange={(event) => {
+                  void handleBulkStemFilePick(event.target.files);
+                  event.currentTarget.value = "";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => bulkUploadInputRef.current?.click()}
+                disabled={isBulkUploading}
+                className="rounded-xl bg-cyan-500/10 px-4 py-2 text-sm font-bold text-cyan-400 transition hover:bg-cyan-500/20 disabled:opacity-60 active:scale-95"
+              >
+                {isBulkUploading ? "Uploading..." : "Bulk Upload"}
+              </button>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={loadTrack}
+                className="rounded-xl bg-sky-500 px-6 py-2 text-sm font-bold text-slate-900 transition hover:bg-sky-400 active:scale-95"
+              >
+                Load Player
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveSession}
+                className="rounded-xl bg-emerald-500/10 px-6 py-2 text-sm font-bold text-emerald-400 transition hover:bg-emerald-500/20 active:scale-95"
+              >
+                Save Session
+              </button>
+            </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="grid gap-4">
             {stems.map((stem, index) => (
               <div
                 key={index}
@@ -398,17 +420,25 @@ function NewStemPageContent() {
                   </button>
                 </div>
 
-                <div className="mt-2 flex items-center gap-3 text-xs text-white/55">
-                  <input
-                    value={stem.color}
-                    onChange={(event) => updateStem(index, { color: event.target.value })}
-                    className="h-9 w-24 rounded-lg border border-white/15 bg-black/25 px-2 outline-none"
-                    placeholder="#4ECDC4"
-                  />
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-xs">
+                  <div className="flex gap-1.5">
+                    {stemPalette.slice(0, 7).map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => updateStem(index, { color })}
+                        className={`h-6 w-6 rounded-full border-2 transition hover:scale-110 ${
+                          stem.color === color ? "border-white scale-110 shadow-lg" : "border-transparent"
+                        }`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                  <div className="h-4 w-px bg-white/10 mx-2" />
                   {stem.sourceType === "cloudflare" && stem.sourceName ? (
-                    <span className="truncate text-cyan-300">Uploaded: {stem.sourceName}</span>
+                    <span className="truncate font-medium text-cyan-400">File: {stem.sourceName}</span>
                   ) : (
-                    <span className="text-white/40">No audio uploaded</span>
+                    <span className="text-white/30 italic">No audio file</span>
                   )}
                   <input
                     value={stem.fileUrl}
@@ -419,49 +449,18 @@ function NewStemPageContent() {
                         sourceName: undefined,
                       })
                     }
-                    className="ml-auto hidden w-[45%] rounded-lg border border-white/10 bg-black/25 px-3 py-1.5 text-xs text-white/50 md:block"
-                    placeholder="https://.../stem.wav"
+                    className="ml-auto hidden w-[40%] rounded-lg border border-white/5 bg-black/20 px-3 py-2 text-[10px] text-white/40 md:block focus:text-white/80 transition focus:bg-black/40 outline-none"
+                    placeholder="External URL (optional)"
                   />
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={addStem}
-              className="rounded-lg border border-white/15 px-4 py-2 text-sm text-white/80 transition hover:bg-white/10"
-            >
-              Add Stem
-            </button>
-            <button
-              type="button"
-              onClick={() => bulkUploadInputRef.current?.click()}
-              disabled={isBulkUploading}
-              className="rounded-lg border border-cyan-300/30 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-100 transition hover:bg-cyan-500/20 disabled:opacity-60"
-            >
-              {isBulkUploading ? "Uploading Stems..." : "Upload Multiple Stems"}
-            </button>
-            <button
-              type="button"
-              onClick={loadTrack}
-              className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-sky-400"
-            >
-              Load Track
-            </button>
-            <button
-              type="button"
-              onClick={handleSaveSession}
-              className="rounded-lg border border-emerald-400/40 bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/30"
-            >
-              Save Session
-            </button>
-          </div>
-
-          {error ? <p className="text-sm text-rose-300">{error}</p> : null}
-          {saveMessage ? <p className="text-sm text-emerald-300">{saveMessage}</p> : null}
+          {error ? <p className="mt-4 rounded-xl bg-rose-500/10 p-3 text-sm font-medium text-rose-400">{error}</p> : null}
+          {saveMessage ? <p className="mt-4 rounded-xl bg-emerald-500/10 p-3 text-sm font-medium text-emerald-400">{saveMessage}</p> : null}
         </section>
+        )}
 
         {loadedTrack ? (
           <StemPlayer track={loadedTrack} />

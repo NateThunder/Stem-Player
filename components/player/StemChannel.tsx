@@ -320,25 +320,25 @@ export default function StemChannel({
         <button
           type="button"
           onClick={onToggleMute}
-          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+          className={`flex-1 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             isMuted
-              ? "border border-white/20 bg-white/10 text-white/80"
-              : "border border-white/10 bg-black/20 text-white/60 hover:bg-white/10"
+              ? "bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.3)]"
+              : "bg-white/5 text-white/40 hover:bg-white/10"
           }`}
         >
-          {isMuted ? "Unmute" : "Mute"}
+          {isMuted ? "MUTED" : "MUTE"}
         </button>
         <button
           type="button"
           onClick={onToggleSolo}
-          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+          className={`flex-1 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             isSoloed
-              ? "border border-transparent text-slate-950"
-              : "border border-white/10 bg-black/20 text-white/60 hover:bg-white/10"
+              ? "text-slate-900 shadow-lg"
+              : "bg-white/5 text-white/40 hover:bg-white/10"
           }`}
-          style={isSoloed ? { background: color } : undefined}
+          style={isSoloed ? { background: color, boxShadow: `0 0 20px ${color}44` } : undefined}
         >
-          {isSoloed ? "Solo On" : "Solo"}
+          {isSoloed ? "SOLO ACTIVE" : "SOLO"}
         </button>
       </div>
     </div>
